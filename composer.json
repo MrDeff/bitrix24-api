@@ -1,0 +1,24 @@
+{
+    "name": "mrdeff/bitrix24-api",
+    "description": "b24 rest api",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "MrDeff",
+            "role": "Developer"
+        }
+    ],
+    "version": "dev-master",
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Bitrix24Api\\": "src"
+        }
+    },
+    "require": {
+        "php": "8.*",
+        "symfony/http-client": "5.*",
+        "illuminate/support": "8.*"
+    }
+}
