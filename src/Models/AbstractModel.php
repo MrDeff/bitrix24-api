@@ -4,7 +4,7 @@ namespace Bitrix24Api\Models;
 
 use Illuminate\Support\Str;
 
-abstract class BaseApiModel
+abstract class AbstractModel
 {
     /**
      * @return array
@@ -31,5 +31,10 @@ abstract class BaseApiModel
     public function __set($name, $value)
     {
 
+    }
+
+    protected function isKeyExists(string $key): bool
+    {
+        return array_key_exists($key, $this->data);
     }
 }

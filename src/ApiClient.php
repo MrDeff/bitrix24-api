@@ -1,9 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace Bitrix24Api;
 
 use Bitrix24Api\Config\Config;
 use Bitrix24Api\EntitiesServices\CRM\Smart\Item;
+use Bitrix24Api\EntitiesServices\Lists\Element as ListsElement;
 use Bitrix24Api\EntitiesServices\Profile;
 use Generator;
 use JetBrains\PhpStorm\ArrayShape;
@@ -21,6 +23,7 @@ class ApiClient
     protected HttpClientInterface $httpClient;
     protected string $typeTransport = 'json';
     private $accessTokenRefreshCallback;
+
 
     public function __construct(Config $config = null)
     {
@@ -77,6 +80,24 @@ class ApiClient
             switch ($request->getStatusCode()) {
                 case 200:
                     $response = new Response($request);
+                    break;
+                case 404:
+                    $body = $request->toArray(false);
+                    if (isset($body['error'])) {
+                        if ($body['error'] === 'ERROR_METHOD_NOT_FOUND') {
+                            //todo: correct exception
+                            throw new \Exception('ERROR_METHOD_NOT_FOUND');
+                        }
+                    }
+                    break;
+                case 400:
+                    $body = $request->toArray(false);
+                    if (isset($body['error'])) {
+                        if ($body['error'] === 'ERROR_REQUIRED_PARAMETERS_MISSING') {
+                            //todo: correct exception
+                            throw new \Exception('ERROR_REQUIRED_PARAMETERS_MISSING:' . $body['error_description']);
+                        }
+                    }
                     break;
                 case 401:
                     $body = $request->toArray(false);
@@ -207,7 +228,7 @@ class ApiClient
                 break;
             }
 
-            $params['filter']['>ID'] = $result[ $resultCounter - 1 ]['ID'];
+            $params['filter']['>ID'] = $result[$resultCounter - 1]['ID'];
         } while (true);
     }
 
@@ -224,5 +245,10 @@ class ApiClient
     #[Pure] public function getLogger(): ?\Psr\Log\LoggerInterface
     {
         return $this->config->getLogger() ?? null;
+    }
+
+    #[Pure] public function listsElement(array $params = []): ListsElement
+    {
+        return new ListsElement($this, $params);
     }
 }

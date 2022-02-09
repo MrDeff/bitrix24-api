@@ -7,7 +7,7 @@ use Bitrix24Api\Models\Interfaces\HasIdInterface;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 
-class ProfileModel extends BaseApiModel implements HasIdInterface
+class ProfileModel extends AbstractModel implements HasIdInterface
 {
     protected int $id;
     protected int $admin;

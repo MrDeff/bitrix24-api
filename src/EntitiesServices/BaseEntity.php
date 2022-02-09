@@ -3,7 +3,7 @@
 namespace Bitrix24Api\EntitiesServices;
 
 use Bitrix24Api\ApiClient;
-use Bitrix24Api\Models\BaseApiModel;
+use Bitrix24Api\Models\AbstractModel;
 
 abstract class BaseEntity
 {
@@ -11,14 +11,20 @@ abstract class BaseEntity
     protected string $method = '';
     protected ApiClient $api;
     protected string $resultKey = '';
+    protected array $baseParams = [];
+    protected string $listMethod = 'list';
 
-    public function __construct(ApiClient $api)
+    public function __construct(ApiClient $api, $params = [])
     {
         $this->api = $api;
+        $this->baseParams = $params;
     }
 
-    public function call(array $params = []): ?BaseApiModel
+    public function call(array $params = []): ?AbstractModel
     {
+        if (!empty($this->baseParams))
+            $params = array_merge($params, $this->baseParams);
+
         $response = $this->api->request($this->getMethod(), $params);
 
         $class = static::ITEM_CLASS;
@@ -26,7 +32,7 @@ abstract class BaseEntity
         return !empty($response) ? $entity->fromArray($response->getResponseData()->getResult()->getResultData()) : null;
     }
 
-    public function get(int $id): ?BaseApiModel
+    public function get(int $id): ?AbstractModel
     {
         $response = $this->api->request(sprintf($this->getMethod(), 'get'), ['id' => $id]);
 
@@ -37,7 +43,10 @@ abstract class BaseEntity
 
     public function getList(array $params = []): \Generator
     {
-        $method = sprintf($this->getMethod(), 'list');
+        if (!empty($this->baseParams))
+            $params = array_merge($params, $this->baseParams);
+
+        $method = sprintf($this->getMethod(), $this->listMethod);
         do {
 
             $result = $this->api->request(
@@ -45,10 +54,9 @@ abstract class BaseEntity
                 $params
             );
 
-            if($this->resultKey){
+            if ($this->resultKey) {
                 $resultData = $result->getResponseData()->getResult()->getResultData()[$this->resultKey] ?? [];
-            }
-            else{
+            } else {
                 $resultData = $result->getResponseData()->getResult()->getResultData() ?? [];
             }
 
@@ -73,7 +81,10 @@ abstract class BaseEntity
 
     public function getListFast(array $params = []): \Generator
     {
-        $method = sprintf($this->getMethod(), 'list');
+        if (!empty($this->baseParams))
+            $params = array_merge($params, $this->baseParams);
+
+        $method = sprintf($this->getMethod(), $this->listMethod);
         $params['order']['id'] = 'ASC';
         $params['filter']['>id'] = 0;
         $params['start'] = -1;
@@ -86,10 +97,9 @@ abstract class BaseEntity
                 $params
             );
 
-            if($this->resultKey){
+            if ($this->resultKey) {
                 $resultData = $result->getResponseData()->getResult()->getResultData()[$this->resultKey] ?? [];
-            }
-            else{
+            } else {
                 $resultData = $result->getResponseData()->getResult()->getResultData() ?? [];
             }
 
@@ -110,7 +120,7 @@ abstract class BaseEntity
                 break;
             }
 
-            $params['filter']['>id'] = (new $class($resultData[ $resultCounter - 1 ]))->getId();
+            $params['filter']['>id'] = (new $class($resultData[$resultCounter - 1]))->getId();
         } while (true);
     }
 
