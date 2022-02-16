@@ -3,10 +3,13 @@ declare(strict_types=1);
 
 namespace Bitrix24Api;
 
+use Bitrix24Api\Batch\Batch;
+use Bitrix24Api\Batch\Command;
 use Bitrix24Api\Config\Config;
 use Bitrix24Api\EntitiesServices\CRM\Smart\Item;
 use Bitrix24Api\EntitiesServices\Lists\Element as ListsElement;
 use Bitrix24Api\EntitiesServices\Profile;
+use Bitrix24Api\EntitiesServices\User;
 use Generator;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
@@ -79,7 +82,7 @@ class ApiClient
             );
             switch ($request->getStatusCode()) {
                 case 200:
-                    $response = new Response($request);
+                    $response = new Response($request, new Command($method, $params));
                     break;
                 case 404:
                     $body = $request->toArray(false);
@@ -250,5 +253,15 @@ class ApiClient
     #[Pure] public function listsElement(array $params = []): ListsElement
     {
         return new ListsElement($this, $params);
+    }
+
+    #[Pure] public function user(array $params = []): User
+    {
+        return new User($this, $params);
+    }
+
+    #[Pure] public function batch(?bool $halt = false): Batch
+    {
+        return new Batch($this, $halt);
     }
 }

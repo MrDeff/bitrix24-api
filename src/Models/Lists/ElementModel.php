@@ -4,6 +4,7 @@ namespace Bitrix24Api\Models\Lists;
 
 use Bitrix24Api\Models\AbstractModel;
 use Bitrix24Api\Models\Interfaces\HasIdInterface;
+use JetBrains\PhpStorm\Pure;
 
 class ElementModel extends AbstractModel implements HasIdInterface
 {
@@ -70,5 +71,18 @@ class ElementModel extends AbstractModel implements HasIdInterface
     public function getUserName(): ?string
     {
         return $this->USER_NAME;
+    }
+
+    public function __get($offset)
+    {
+        if (strpos('PROPERTY_', $offset) && isset($this->data[$offset]) && count($this->data[$offset]) == 1)
+            return $this->getProperty($offset);
+
+        return $this->data[$offset] ?? null;
+    }
+
+    #[Pure] public function getProperty($offset): ?\Bitrix24Api\Models\Lists\Element\Property\ValueModel
+    {
+        return isset($this->data[$offset]) ? new \Bitrix24Api\Models\Lists\Element\Property\ValueModel($this->data[$offset]) : null;
     }
 }

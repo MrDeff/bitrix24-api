@@ -2,6 +2,8 @@
 
 namespace Bitrix24Api\DTO;
 
+use Bitrix24Api\Batch\Command;
+
 class ResponseData
 {
     /**
@@ -16,19 +18,21 @@ class ResponseData
      * @var Pagination
      */
     protected Pagination $pagination;
+    protected Command $command;
 
     /**
      * ResponseData constructor.
      *
-     * @param Result     $result
-     * @param Time       $time
+     * @param Result $result
+     * @param Time $time
      * @param Pagination $pagination
      */
-    public function __construct(Result $result, Time $time, Pagination $pagination)
+    public function __construct(Result $result, Time $time, Pagination $pagination, Command $command)
     {
         $this->result = $result;
         $this->time = $time;
         $this->pagination = $pagination;
+        $this->command = $command;
     }
 
     /**
@@ -53,5 +57,10 @@ class ResponseData
     public function getResult(): Result
     {
         return $this->result;
+    }
+
+    public function getCommand(): Command
+    {
+        return $this->command;
     }
 }

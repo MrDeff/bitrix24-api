@@ -2,17 +2,20 @@
 
 namespace Bitrix24Api;
 
+use Bitrix24Api\Batch\Command;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class Response
 {
     protected ResponseInterface $httpResponse;
     private ?DTO\ResponseData $responseData;
+    protected Command $apiCommand;
 
-    public function __construct(ResponseInterface $httpResponse)
+    public function __construct(ResponseInterface $httpResponse, Command $apiCommand)
     {
         $this->httpResponse = $httpResponse;
         $this->responseData = null;
+        $this->apiCommand = $apiCommand;
     }
 
     public function getResponseData(): ?DTO\ResponseData
@@ -35,7 +38,8 @@ class Response
                 $this->responseData = new DTO\ResponseData(
                     new DTO\Result($responseResult['result']),
                     DTO\Time::initFromResponse($responseResult['time']),
-                    new DTO\Pagination($nextItem, $total)
+                    new DTO\Pagination($nextItem, $total),
+                    $this->apiCommand
                 );
             } catch (\Exception $exception) {
 
