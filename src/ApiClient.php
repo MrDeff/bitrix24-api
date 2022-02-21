@@ -6,11 +6,14 @@ namespace Bitrix24Api;
 use Bitrix24Api\Batch\Batch;
 use Bitrix24Api\Batch\Command;
 use Bitrix24Api\Config\Config;
+use Bitrix24Api\EntitiesServices\CRM\Company;
+use Bitrix24Api\EntitiesServices\CRM\Contact;
 use Bitrix24Api\EntitiesServices\CRM\Smart\Item;
 use Bitrix24Api\EntitiesServices\Lists\Element as ListsElement;
 use Bitrix24Api\EntitiesServices\Profile;
 use Bitrix24Api\EntitiesServices\User;
 use Generator;
+use Illuminate\Support\Facades\Log;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 use Symfony\Component\HttpClient\HttpClient;
@@ -99,6 +102,9 @@ class ApiClient
                         if ($body['error'] === 'ERROR_REQUIRED_PARAMETERS_MISSING') {
                             //todo: correct exception
                             throw new \Exception('ERROR_REQUIRED_PARAMETERS_MISSING:' . $body['error_description']);
+                        }
+                        else{
+                            throw new \Exception('ERROR:' . $body['error_description']);
                         }
                     }
                     break;
@@ -258,6 +264,16 @@ class ApiClient
     #[Pure] public function user(array $params = []): User
     {
         return new User($this, $params);
+    }
+
+    #[Pure] public function company(array $params = []): Company
+    {
+        return new Company($this, $params);
+    }
+
+    #[Pure] public function contact(array $params = []): Contact
+    {
+        return new Contact($this, $params);
     }
 
     #[Pure] public function batch(?bool $halt = false): Batch

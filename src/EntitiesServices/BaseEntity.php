@@ -4,6 +4,7 @@ namespace Bitrix24Api\EntitiesServices;
 
 use Bitrix24Api\ApiClient;
 use Bitrix24Api\Models\AbstractModel;
+use Illuminate\Support\Facades\Log;
 
 abstract class BaseEntity
 {
@@ -32,13 +33,18 @@ abstract class BaseEntity
         return !empty($response) ? $entity->fromArray($response->getResponseData()->getResult()->getResultData()) : null;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function get(int $id): ?AbstractModel
     {
-        $response = $this->api->request(sprintf($this->getMethod(), 'get'), ['id' => $id]);
-
         $class = static::ITEM_CLASS;
-        $entity = new $class($response->getResponseData()->getResult()->getResultData());
-        return !empty($response) ? $entity : null;
+        try {
+            $response = $this->api->request(sprintf($this->getMethod(), 'get'), ['id' => $id]);
+            return new $class($response->getResponseData()->getResult()->getResultData());
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 
     public function getList(array $params = []): \Generator
@@ -77,6 +83,32 @@ abstract class BaseEntity
 
             $params['start'] = $result->getResponseData()->getPagination()->getNextItem();
         } while (true);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function update($id, array $fields): bool
+    {
+        try {
+            $this->api->request(sprintf($this->getMethod(), 'update'), ['id' => $id, 'fields' => $fields]);
+            return true;
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function delete($id): bool
+    {
+        try {
+            $this->api->request(sprintf($this->getMethod(), 'delete'), ['id' => $id]);
+            return true;
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 
     public function getListFast(array $params = []): \Generator
