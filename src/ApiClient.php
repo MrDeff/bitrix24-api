@@ -104,7 +104,7 @@ class ApiClient
                             throw new \Exception('ERROR_REQUIRED_PARAMETERS_MISSING:' . $body['error_description']);
                         }
                         else{
-                            throw new \Exception('ERROR:' . $body['error_description']);
+                            throw new \Exception('ERROR:'.$body['error'].' description:'. $body['error_description']);
                         }
                     }
                     break;
@@ -237,7 +237,7 @@ class ApiClient
                 break;
             }
 
-            $params['filter']['>ID'] = $result[$resultCounter - 1]['ID'];
+            $params['filter']['>ID'] = $result->getResponseData()->getResult()->getResultData()[$resultCounter - 1]['ID'];
         } while (true);
     }
 
