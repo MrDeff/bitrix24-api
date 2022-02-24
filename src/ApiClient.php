@@ -226,6 +226,8 @@ class ApiClient
         $totalCounter = 0;
 
         do {
+            // костыль чтобы наверняка
+            $params['FILTER'] = $params['filter'];
             $result = $this->request(
                 $method,
                 $params
