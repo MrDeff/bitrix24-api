@@ -212,7 +212,7 @@ class ApiClient
     public function getListFast(string $method, array $params = []): Generator
     {
         $params['order']['id'] = 'ASC';
-        $params['filter']['>id'] = 0;
+        $params['filter']['>ID'] = 0;
         $params['start'] = -1;
 
         if (isset($params['FILTER']) && is_array($params['FILTER']) && count($params['FILTER']) > 0) {
