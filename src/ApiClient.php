@@ -215,6 +215,14 @@ class ApiClient
         $params['filter']['>id'] = 0;
         $params['start'] = -1;
 
+        if (isset($params['FILTER']) && is_array($params['FILTER']) && count($params['FILTER']) > 0) {
+            if (!isset($params['filter'])) {
+                $params['filter'] = [];
+            }
+            $params['filter'] = array_merge($params['filter'], $params['FILTER']);
+            unset($params['FILTER']);
+        }
+
         $totalCounter = 0;
 
         do {
