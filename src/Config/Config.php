@@ -9,9 +9,9 @@ class Config
     protected string $webHookUrl = '';
     protected ?Application $applicationConfig;
     protected ?Credential $credential;
-    protected LoggerInterface $logger;
+    protected ?LoggerInterface $logger;
 
-    public function __construct(?string $url, ?Application $applicationConfig, ?Credential $credential, LoggerInterface $logger)
+    public function __construct(?string $url, ?Application $applicationConfig, ?Credential $credential, ?LoggerInterface $logger = null)
     {
         $this->logger = $logger;
 
@@ -22,12 +22,22 @@ class Config
         } else {
             $this->setWebHookUrl($url);
         }
-        $this->logger->debug(
-            'Api.init',
-            [
-                'webhookMode' => $this->isWebHookMode(),
-            ]
-        );
+        if ($this->logger) {
+            $this->logger->debug(
+                'Api.init',
+                [
+                    'webhookMode' => $this->isWebHookMode(),
+                ]
+            );
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isWebHookMode(): bool
+    {
+        return !empty($this->webHookUrl);
     }
 
     /**
@@ -44,14 +54,6 @@ class Config
     public function setWebHookUrl(string $url)
     {
         $this->webHookUrl = $url;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isWebHookMode(): bool
-    {
-        return !empty($this->webHookUrl);
     }
 
     /**
@@ -87,9 +89,9 @@ class Config
     }
 
     /**
-     * @return LoggerInterface
+     * @return LoggerInterface|null
      */
-    public function getLogger(): LoggerInterface
+    public function getLogger(): ?LoggerInterface
     {
         return $this->logger;
     }

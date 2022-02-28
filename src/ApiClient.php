@@ -8,15 +8,22 @@ use Bitrix24Api\Batch\Command;
 use Bitrix24Api\Config\Config;
 use Bitrix24Api\EntitiesServices\CRM\Company;
 use Bitrix24Api\EntitiesServices\CRM\Contact;
-use Bitrix24Api\EntitiesServices\CRM\Smart\Item;
+use Bitrix24Api\EntitiesServices\CRM\Smart\Item as crmSmartItem;
 use Bitrix24Api\EntitiesServices\Lists\Element as ListsElement;
 use Bitrix24Api\EntitiesServices\Profile;
 use Bitrix24Api\EntitiesServices\User;
+use Bitrix24Api\Exceptions\ExpiredRefreshToken;
+use Bitrix24Api\Exceptions\ServerInternalError;
+use Exception;
 use Generator;
-use Illuminate\Support\Facades\Log;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -35,8 +42,6 @@ class ApiClient
     {
         $this->config = $config;
         $this->httpClient = HttpClient::create(['http_version' => '2.0']);
-//        $traceableClient = new \Symfony\Component\HttpClient\TraceableHttpClient($this->httpClient);
-//        $traceableClient->setLogger($this->log);
     }
 
     /**
@@ -51,6 +56,36 @@ class ApiClient
         return $this;
     }
 
+    public function getList(string $method, array $params = []): Generator
+    {
+        do {
+            $result = $this->request(
+                $method,
+                $params
+            );
+
+            $start = $params['start'] ?? 0;
+            $this->config->getLogger()?->debug(
+                "По запросу (getList) {$method} (start: {$start}) получено сущностей: " . count($result->getResponseData()->getResult()->getResultData()) .
+                ", всего существует: " . $result->getResponseData()->getPagination()->getTotal(),
+            );
+
+            yield $result;
+
+            if (empty($result->getResponseData()->getPagination()->getNextItem())) {
+                break;
+            }
+
+            $params['start'] = $result->getResponseData()->getPagination()->getNextItem();
+        } while (true);
+    }
+
+    /**
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     */
     public function request(string $method, array $params = []): ?Response
     {
         if ($this->config->isWebHookMode()) {
@@ -67,6 +102,7 @@ class ApiClient
             'json' => $params,
             'headers' => $this->getRequestDefaultHeaders(),
         ];
+
         $response = null;
         $this->config->getLogger()?->debug(
             sprintf('request.start %s', $method),
@@ -83,6 +119,7 @@ class ApiClient
                     'body' => $request->toArray(false)
                 ]
             );
+
             switch ($request->getStatusCode()) {
                 case 200:
                     $response = new Response($request, new Command($method, $params));
@@ -92,7 +129,7 @@ class ApiClient
                     if (isset($body['error'])) {
                         if ($body['error'] === 'ERROR_METHOD_NOT_FOUND') {
                             //todo: correct exception
-                            throw new \Exception('ERROR_METHOD_NOT_FOUND');
+                            throw new Exception('ERROR_METHOD_NOT_FOUND');
                         }
                     }
                     break;
@@ -101,10 +138,9 @@ class ApiClient
                     if (isset($body['error'])) {
                         if ($body['error'] === 'ERROR_REQUIRED_PARAMETERS_MISSING') {
                             //todo: correct exception
-                            throw new \Exception('ERROR_REQUIRED_PARAMETERS_MISSING:' . $body['error_description']);
-                        }
-                        else{
-                            throw new \Exception('ERROR:'.$body['error'].' description:'. $body['error_description']);
+                            throw new Exception('ERROR_REQUIRED_PARAMETERS_MISSING:' . $body['error_description']);
+                        } else {
+                            throw new Exception('ERROR:' . $body['error'] . ' description:' . $body['error_description']);
                         }
                     }
                     break;
@@ -115,6 +151,8 @@ class ApiClient
                         $response = $this->request($method, $params);
                     }
                     break;
+                case 500:
+                    throw new ServerInternalError('request: 500 internal error');
                 default:
                     $this->config->getLogger()?->debug(
                         sprintf('request.end %s', $method),
@@ -127,7 +165,7 @@ class ApiClient
             }
 
         } catch (TransportExceptionInterface $e) {
-            $this->config->getLogger()->error($e->getMessage());
+            $this->config->getLogger()?->error($e->getMessage());
         }
 
         return $response;
@@ -162,10 +200,10 @@ class ApiClient
         ];
         try {
             $response = $this->httpClient->request('GET', $url, $requestOptions);
+
             switch ($response->getStatusCode()) {
                 case 200:
                     $result = $response->toArray(false);
-
                     $this->config->getCredential()->setFromArray($result);
                     if (is_callable($this->accessTokenRefreshCallback)) {
                         $callback = $this->accessTokenRefreshCallback;
@@ -173,40 +211,21 @@ class ApiClient
                     }
                     break;
                 case 500:
+                    throw new ServerInternalError('getNewToken: 500 internal error');
+                case 401:
+                    throw new ExpiredRefreshToken('refresh token expired');
                 default:
 
                     break;
             }
         } catch (TransportExceptionInterface $e) {
-            echo 'error';
-            echo '<pre>';
-            print_r($e);
-            echo '</pre>';
+            $this->getLogger()?->error($e);
         }
     }
 
-    public function getList(string $method, array $params = []): Generator
+    #[Pure] public function getLogger(): ?LoggerInterface
     {
-        do {
-            $result = $this->request(
-                $method,
-                $params
-            );
-
-            $start = $params['start'] ?? 0;
-            $this->config->getLogger()?->debug(
-                "По запросу (getList) {$method} (start: {$start}) получено сущностей: " . count($result->getResponseData()->getResult()->getResultData()) .
-                ", всего существует: " . $result->getResponseData()->getPagination()->getTotal(),
-            );
-
-            yield $result;
-
-            if (empty($result->getResponseData()->getPagination()->getNextItem())) {
-                break;
-            }
-
-            $params['start'] = $result->getResponseData()->getPagination()->getNextItem();
-        } while (true);
+        return $this->config->getLogger() ?? null;
     }
 
     public function getListFast(string $method, array $params = []): Generator
@@ -256,14 +275,9 @@ class ApiClient
         return new Profile($this);
     }
 
-    #[Pure] public function CrmSmartItem(): Item
+    #[Pure] public function crmSmartItem(array $params = []): crmSmartItem
     {
-        return new Item($this);
-    }
-
-    #[Pure] public function getLogger(): ?\Psr\Log\LoggerInterface
-    {
-        return $this->config->getLogger() ?? null;
+        return new crmSmartItem($this, $params);
     }
 
     #[Pure] public function listsElement(array $params = []): ListsElement

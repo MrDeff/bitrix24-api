@@ -2,11 +2,11 @@
 namespace Bitrix24Api\EntitiesServices\CRM\Smart;
 
 use Bitrix24Api\EntitiesServices\BaseEntity;
-use Bitrix24Api\Models\CRM\Smart\ElementModel;
+use Bitrix24Api\Models\CRM\Smart\ItemModel;
 
 class Item extends BaseEntity
 {
     protected string $method = 'crm.item.%s';
-    public const ITEM_CLASS = ElementModel::class;
+    public const ITEM_CLASS = ItemModel::class;
     protected string $resultKey = 'items';
 }
