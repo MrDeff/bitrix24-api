@@ -14,6 +14,7 @@ abstract class BaseEntity
     protected string $resultKey = '';
     protected array $baseParams = [];
     protected string $listMethod = 'list';
+    protected string $idKey = 'ID';
 
     public function __construct(ApiClient $api, $params = [])
     {
@@ -118,12 +119,22 @@ abstract class BaseEntity
 
         $method = sprintf($this->getMethod(), $this->listMethod);
         $params['order']['id'] = 'ASC';
-        $params['filter']['>id'] = 0;
+        $params['filter']['>'.$this->idKey] = 0;
         $params['start'] = -1;
+
+        if (isset($params['FILTER']) && is_array($params['FILTER']) && count($params['FILTER']) > 0) {
+            if (!isset($params['filter'])) {
+                $params['filter'] = [];
+            }
+            $params['filter'] = array_merge($params['filter'], $params['FILTER']);
+            unset($params['FILTER']);
+        }
 
         $totalCounter = 0;
 
         do {
+            // костыль чтобы наверняка
+            $params['FILTER'] = $params['filter'];
             $result = $this->api->request(
                 $method,
                 $params
@@ -152,7 +163,7 @@ abstract class BaseEntity
                 break;
             }
 
-            $params['filter']['>id'] = (new $class($resultData[$resultCounter - 1]))->getId();
+            $params['filter']['>'.$this->idKey] = (new $class($resultData[$resultCounter - 1]))->getId();
         } while (true);
     }
 

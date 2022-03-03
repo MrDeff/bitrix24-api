@@ -32,4 +32,9 @@ class ItemModel extends AbstractModel implements HasIdInterface
     {
         return $this->entityTypeId;
     }
+
+    public function getOpportunity(): ?int
+    {
+        return $this->opportunity;
+    }
 }

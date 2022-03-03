@@ -9,4 +9,5 @@ class Item extends BaseEntity
     protected string $method = 'crm.item.%s';
     public const ITEM_CLASS = ItemModel::class;
     protected string $resultKey = 'items';
+    protected string $idKey = 'id';
 }
