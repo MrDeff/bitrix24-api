@@ -1,0 +1,24 @@
+<?php
+
+namespace Bitrix24Api\EntitiesServices\CRM;
+
+use Bitrix24Api\EntitiesServices\BaseEntity;
+use Bitrix24Api\Exceptions\NotImplement;
+use Bitrix24Api\Models\CRM\ProductModel;
+
+class Product extends BaseEntity
+{
+    protected string $method = 'crm.product.%s';
+    public const ITEM_CLASS = ProductModel::class;
+    protected string $resultKey = '';
+    protected string $listMethod = 'list';
+
+    /**
+     * @throws NotImplement
+     */
+    public function add(array $fields): bool
+    {
+        throw new NotImplement();
+    }
+
+}
