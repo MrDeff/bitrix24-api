@@ -31,6 +31,8 @@ use Bitrix24Api\EntitiesServices\Entity\Item;
 use Bitrix24Api\EntitiesServices\Entity\ItemProperty;
 use Bitrix24Api\EntitiesServices\Entity\Section;
 use Bitrix24Api\EntitiesServices\Lists\Element as ListsElement;
+use Bitrix24Api\EntitiesServices\Lists\Lists;
+use Bitrix24Api\EntitiesServices\Lists\ListsField;
 use Bitrix24Api\EntitiesServices\Profile;
 use Bitrix24Api\EntitiesServices\Sonet\Group;
 use Bitrix24Api\EntitiesServices\Task\CommentItem;
@@ -456,9 +458,20 @@ class ApiClient
     /*
      * Lists
      */
+
+    public function listsList(array $params = []): Lists
+    {
+        return new Lists($this, $params);
+    }
+
     public function listsElement(array $params = []): ListsElement
     {
         return new ListsElement($this, $params);
+    }
+
+    public function listsListField(array $params = []): ListsField
+    {
+        return new ListsField($this, $params);
     }
 
     /*

@@ -34,19 +34,19 @@ abstract class BaseEntity
         return !empty($response) ? $entity->fromArray($response->getResponseData()->getResult()->getResultData()) : null;
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function get($id): ?AbstractModel
-    {
-        $class = static::ITEM_CLASS;
-        try {
-            $response = $this->api->request(sprintf($this->getMethod(), 'get'), ['id' => $id]);
-            return new $class($response->getResponseData()->getResult()->getResultData());
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
-        }
-    }
+//    /**
+//     * @throws \Exception
+//     */
+//    public function get($id): ?AbstractModel
+//    {
+//        $class = static::ITEM_CLASS;
+//        try {
+//            $response = $this->api->request(sprintf($this->getMethod(), 'get'), ['id' => $id]);
+//            return new $class($response->getResponseData()->getResult()->getResultData());
+//        } catch (\Exception $e) {
+//            throw new \Exception($e->getMessage());
+//        }
+//    }
 
     public function getList(array $params = []): \Generator
     {

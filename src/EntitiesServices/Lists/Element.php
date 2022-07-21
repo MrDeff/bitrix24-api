@@ -13,7 +13,7 @@ class Element extends BaseEntity
     protected string $resultKey = '';
     protected string $listMethod = 'get';
 
-    public function get(int|string $id): ?AbstractModel
+    public function get($id): ?AbstractModel
     {
         $params = $this->baseParams;
         $params['ELEMENT_ID'] = $id;
