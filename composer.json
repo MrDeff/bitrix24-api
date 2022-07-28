@@ -9,15 +9,13 @@
       "role": "Developer"
     }
   ],
-  "version": "1.0",
-  "minimum-stability": "dev",
   "autoload": {
     "psr-4": {
       "Bitrix24Api\\": "src"
     }
   },
   "require": {
-    "php": "^7.4|^8.0",
+    "php": "^7.4|^8.0|^8.1",
     "symfony/http-client": "5.*",
     "psr/log": "^1.0.1 || ^2.0 || ^3.0",
     "ext-json": "*",

@@ -3,6 +3,7 @@
 namespace Bitrix24Api\EntitiesServices\Disk;
 
 use Bitrix24Api\EntitiesServices\BaseEntity;
+use Bitrix24Api\EntitiesServices\Traits\Base\GetTrait;
 use Bitrix24Api\Exceptions\MethodNotFound;
 use Bitrix24Api\Models\AbstractModel;
 use Bitrix24Api\Models\Disk\FileModel;
@@ -10,6 +11,8 @@ use Bitrix24Api\Models\Disk\FolderModel;
 
 class Folder extends BaseEntity
 {
+    use GetTrait;
+
     protected string $method = 'disk.folder.%s';
     public const ITEM_CLASS = FolderModel::class;
     protected string $resultKey = '';
@@ -23,37 +26,5 @@ class Folder extends BaseEntity
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
-    }
-
-    /**
-     * @throws MethodNotFound
-     */
-    public function getList(array $params = []): \Generator
-    {
-        throw new MethodNotFound();
-    }
-
-    /**
-     * @throws MethodNotFound
-     */
-    public function getListFast(array $params = []): \Generator
-    {
-        throw new MethodNotFound();
-    }
-
-    /**
-     * @throws MethodNotFound
-     */
-    public function update($id, array $fields): bool
-    {
-        throw new MethodNotFound();
-    }
-
-    /**
-     * @throws MethodNotFound
-     */
-    public function delete($id): bool
-    {
-        throw new MethodNotFound();
     }
 }

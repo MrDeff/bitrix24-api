@@ -3,26 +3,19 @@
 namespace Bitrix24Api\EntitiesServices\CRM;
 
 use Bitrix24Api\EntitiesServices\BaseEntity;
+use Bitrix24Api\EntitiesServices\Traits\Base\AddTrait;
+use Bitrix24Api\EntitiesServices\Traits\Base\DeleteTrait;
+use Bitrix24Api\EntitiesServices\Traits\Base\FieldsTrait;
+use Bitrix24Api\EntitiesServices\Traits\Base\GetTrait;
+use Bitrix24Api\EntitiesServices\Traits\Base\UpdateTrait;
 use Bitrix24Api\Models\CRM\ActivityModel;
 
 class Activity extends BaseEntity
 {
+    use AddTrait, UpdateTrait, DeleteTrait, FieldsTrait, GetTrait;
+
     protected string $method = 'crm.activity.%s';
     public const ITEM_CLASS = ActivityModel::class;
     protected string $resultKey = '';
     protected string $listMethod = 'list';
-
-    /**
-     * @throws \Exception
-     */
-
-    public function add(array $fields): bool
-    {
-        try {
-            $this->api->request(sprintf($this->getMethod(), 'add'), ['fields' => $fields]);
-            return true;
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
-        }
-    }
 }

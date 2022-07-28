@@ -34,20 +34,6 @@ abstract class BaseEntity
         return !empty($response) ? $entity->fromArray($response->getResponseData()->getResult()->getResultData()) : null;
     }
 
-//    /**
-//     * @throws \Exception
-//     */
-//    public function get($id): ?AbstractModel
-//    {
-//        $class = static::ITEM_CLASS;
-//        try {
-//            $response = $this->api->request(sprintf($this->getMethod(), 'get'), ['id' => $id]);
-//            return new $class($response->getResponseData()->getResult()->getResultData());
-//        } catch (\Exception $e) {
-//            throw new \Exception($e->getMessage());
-//        }
-//    }
-
     public function getList(array $params = []): \Generator
     {
         if (!empty($this->baseParams))
@@ -87,32 +73,6 @@ abstract class BaseEntity
 
             $params['start'] = $result->getResponseData()->getPagination()->getNextItem();
         } while (true);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function update($id, array $fields): bool
-    {
-        try {
-            $this->api->request(sprintf($this->getMethod(), 'update'), ['id' => $id, 'fields' => $fields]);
-            return true;
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
-        }
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function delete($id): bool
-    {
-        try {
-            $this->api->request(sprintf($this->getMethod(), 'delete'), ['id' => $id]);
-            return true;
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
-        }
     }
 
     public function getListFast(array $params = []): \Generator
@@ -170,16 +130,6 @@ abstract class BaseEntity
 
             $params['filter']['>' . $this->idKey] = (new $class($resultData[$resultCounter - 1]))->getId();
         } while (true);
-    }
-
-    public function fields(): array
-    {
-        try {
-            $response = $this->api->request(sprintf($this->getMethod(), 'fields'), []);
-            return $response->getResponseData()->getResult()->getResultData();
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
-        }
     }
 
     /**

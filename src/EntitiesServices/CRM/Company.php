@@ -3,14 +3,39 @@
 namespace Bitrix24Api\EntitiesServices\CRM;
 
 use Bitrix24Api\EntitiesServices\BaseEntity;
+use Bitrix24Api\EntitiesServices\Traits\Base\AddTrait;
+use Bitrix24Api\EntitiesServices\Traits\Base\DeleteTrait;
+use Bitrix24Api\EntitiesServices\Traits\Base\FieldsTrait;
+use Bitrix24Api\EntitiesServices\Traits\Base\GetTrait;
+use Bitrix24Api\EntitiesServices\Traits\Base\UpdateTrait;
 use Bitrix24Api\Models\CRM\CompanyModel;
 
 class Company extends BaseEntity
 {
+    use GetTrait, DeleteTrait, FieldsTrait;
+
     protected string $method = 'crm.company.%s';
     public const ITEM_CLASS = CompanyModel::class;
     protected string $resultKey = '';
     protected string $listMethod = 'list';
+
+    /**
+     * @throws \Exception
+     */
+    public function add(array $fields, $params = [])
+    {
+        try {
+            $response = $this->api->request(sprintf($this->getMethod(), 'add'), ['fields' => $fields, 'params' => $params]);
+            $result = $response->getResponseData()->getResult()->getResultData();
+            if (isset($result['ID']) && $result['ID'] > 0) {
+                return $result['ID'];
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
 
     /**
      * @throws \Exception

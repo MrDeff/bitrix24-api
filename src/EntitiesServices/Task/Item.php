@@ -13,12 +13,12 @@ class Item extends BaseEntity
     protected string $resultKey = '';
     protected string $listMethod = 'list';
 
-    public function get(int|string $id, array $select = []): ?ItemModel
+    public function get( $id, array $select = []): ?ItemModel
     {
         throw new NotImplement();
     }
 
-    public function add(array $fields = []): bool|int
+    public function add(array $fields = [])
     {
         throw new NotImplement();
     }
@@ -36,7 +36,7 @@ class Item extends BaseEntity
     public function addFile(int $taskId, string $fileName, string $fileContent): ?array
     {
         try {
-            $response = $this->api->request(sprintf($this->getMethod(), 'addfile'), ['TASKID' => $taskId, 'FILE' => [
+            $response = $this->api->request(sprintf($this->getMethod(), 'addfile'), ['TASK_ID' => $taskId, 'FILE' => [
                 'NAME' => $fileName,
                 'CONTENT' => base64_encode($fileContent)
             ]]);

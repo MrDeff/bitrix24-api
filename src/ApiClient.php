@@ -352,9 +352,9 @@ class ApiClient
     /**
      * @throws Exceptions\InvalidArgumentException
      */
-    public function crmCategory(array $params = []): Category
+    public function crmCategory(string $entityTypeId): Category
     {
-        return new Category($this, $params);
+        return new Category($this, $entityTypeId);
     }
 
     public function crmCompany(array $params = []): Company
@@ -435,9 +435,12 @@ class ApiClient
      * Entity
      */
 
-    public function entity(array $params = []): Entity
+    /**
+     * @throws Exceptions\InvalidArgumentException
+     */
+    public function entity(string $entityId): Entity
     {
-        return new Entity($this, $params);
+        return new Entity($this, $entityId);
     }
 
     public function entityItem(array $params = []): Item

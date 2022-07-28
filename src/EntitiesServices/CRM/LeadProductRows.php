@@ -26,7 +26,7 @@ class LeadProductRows extends BaseEntity
     /**
      * @throws NotImplement
      */
-    public function get(int|string $id): ?AbstractModel
+    public function get($id): ?AbstractModel
     {
         throw new NotImplement();
     }

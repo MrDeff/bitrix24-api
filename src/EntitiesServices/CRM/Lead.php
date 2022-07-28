@@ -3,23 +3,27 @@
 namespace Bitrix24Api\EntitiesServices\CRM;
 
 use Bitrix24Api\EntitiesServices\BaseEntity;
+use Bitrix24Api\EntitiesServices\Traits\Base\DeleteTrait;
+use Bitrix24Api\EntitiesServices\Traits\Base\FieldsTrait;
+use Bitrix24Api\EntitiesServices\Traits\Base\GetTrait;
 use Bitrix24Api\Models\CRM\LeadModel;
 
 class Lead extends BaseEntity
 {
+    use GetTrait, DeleteTrait, FieldsTrait;
+
     protected string $method = 'crm.lead.%s';
     public const ITEM_CLASS = LeadModel::class;
     protected string $resultKey = '';
     protected string $listMethod = 'list';
 
-    public function add(array $fields, $params = []): bool
+    public function add(array $fields, $params = [])
     {
         try {
             $response = $this->api->request(sprintf($this->getMethod(), 'add'), ['fields' => $fields, 'params' => $params]);
             $result = $response->getResponseData()->getResult()->getResultData();
-            $id = $result['ID'];
-            if ($id > 0) {
-                return $id;
+            if (isset($result['ID']) && $result['ID'] > 0) {
+                return $result['ID'];
             } else {
                 return false;
             }

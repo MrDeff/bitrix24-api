@@ -20,20 +20,19 @@ class Category extends BaseEntity
     /**
      * @throws InvalidArgumentException
      */
-    public function __construct(ApiClient $api, $params = [])
+    public function __construct(ApiClient $api, string $entityTypeId)
     {
-        parent::__construct($api, $params);
-        if (!isset($params['entityTypeId'])) {
-            throw new InvalidArgumentException();
-        } else {
-            $this->entityTypeId = $params['entityTypeId'];
+        parent::__construct($api, []);
+        if (empty($entityTypeId)) {
+            throw new InvalidArgumentException('entityTypeId is null');
         }
+        $this->entityTypeId = $entityTypeId;
     }
 
     /**
      * @throws \Exception
      */
-    public function get(int|string $id): ?AbstractModel
+    public function get($id): ?AbstractModel
     {
         $class = static::ITEM_CLASS;
         try {

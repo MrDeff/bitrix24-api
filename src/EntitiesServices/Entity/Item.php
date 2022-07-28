@@ -13,7 +13,7 @@ class Item extends BaseEntity
     protected string $resultKey = '';
     protected string $listMethod = 'get';
 
-    public function add($params = []): bool|int
+    public function add($params = [])
     {
         if (!empty($this->baseParams))
             $params = array_merge($params, $this->baseParams);

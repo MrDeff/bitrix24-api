@@ -3,11 +3,13 @@
 namespace Bitrix24Api\EntitiesServices\CRM;
 
 use Bitrix24Api\EntitiesServices\BaseEntity;
+use Bitrix24Api\EntitiesServices\Traits\Base\FieldsTrait;
 use Bitrix24Api\Exceptions\MethodNotFound;
 use Bitrix24Api\Models\CRM\ActivityCommunicationModel;
 
 class ActivityCommunication extends BaseEntity
 {
+    use FieldsTrait;
     protected string $method = 'crm.activity.communication.%s';
     public const ITEM_CLASS = ActivityCommunicationModel::class;
     protected string $resultKey = '';

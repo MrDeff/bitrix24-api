@@ -13,11 +13,11 @@ class Stages extends BaseEntity
     protected string $resultKey = '';
     protected string $listMethod = 'list';
 
-    public function getData($id, bool $isAdmin = false): array
+    public function getData($entityId, bool $isAdmin = false): array
     {
         $class = static::ITEM_CLASS;
         try {
-            $response = $this->api->request(sprintf($this->getMethod(), 'get'), ['entityId' => $id, 'isAdmin' => $isAdmin]);
+            $response = $this->api->request(sprintf($this->getMethod(), 'get'), ['entityId' => $entityId, 'isAdmin' => $isAdmin]);
             return $response->getResponseData()->getResult()->getResultData();
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());

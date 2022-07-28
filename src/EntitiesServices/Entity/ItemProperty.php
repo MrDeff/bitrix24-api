@@ -14,7 +14,7 @@ class ItemProperty extends BaseEntity
     protected string $resultKey = '';
     protected string $listMethod = '';
 
-    public function add(string $property, string $name, string $type = 'S'): bool|int
+    public function add(string $property, string $name, string $type = 'S')
     {
         $params = [
             'PROPERTY' => $property,

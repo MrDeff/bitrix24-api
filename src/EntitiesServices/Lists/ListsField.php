@@ -3,16 +3,15 @@
 namespace Bitrix24Api\EntitiesServices\Lists;
 
 use Bitrix24Api\EntitiesServices\BaseEntity;
+use Bitrix24Api\EntitiesServices\Lists\Traits\UpdateTrait;
 use Bitrix24Api\EntitiesServices\Traits\GetWithoutParamsTrait;
 use Bitrix24Api\Exceptions\ApiException;
 use Bitrix24Api\Exceptions\Entity\AlredyExists;
-use Bitrix24Api\Models\AbstractModel;
 use Bitrix24Api\Models\Lists\ListFieldModel;
-use Bitrix24Api\Models\Lists\ListModel;
 
 class ListsField extends BaseEntity
 {
-    use GetWithoutParamsTrait;
+    use GetWithoutParamsTrait, UpdateTrait;
 
     protected string $method = 'lists.field.%s';
     public const ITEM_CLASS = ListFieldModel::class;
@@ -23,7 +22,7 @@ class ListsField extends BaseEntity
      *
      * @throws \Exception
      */
-    public function get(string $iblockTypeId, $iblockCodeOrId, int $sonetGroupId = 0,string $fieldId = null)
+    public function get(string $iblockTypeId, $iblockCodeOrId, int $sonetGroupId = 0, string $fieldId = null)
     {
         $params = [
             'IBLOCK_TYPE_ID' => $iblockTypeId,
@@ -36,18 +35,16 @@ class ListsField extends BaseEntity
             $params['IBLOCK_CODE'] = $iblockCodeOrId;
         }
 
-        if($fieldId)
-        {
+        if ($fieldId) {
             $params['FIELD_ID'] = $fieldId;
         }
 
         $class = static::ITEM_CLASS;
         try {
             $response = $this->api->request(sprintf($this->getMethod(), 'get'), $params);
-            if($fieldId) {
+            if ($fieldId) {
                 return new $class(!empty($response->getResponseData()->getResult()->getResultData()) ? current($response->getResponseData()->getResult()->getResultData()) : []);
-            }
-            else{
+            } else {
                 $result = [];
                 foreach ($response->getResponseData()->getResult()->getResultData() as $field) {
                     $result[] = new $class($field);
@@ -67,9 +64,6 @@ class ListsField extends BaseEntity
             'SOCNET_GROUP_ID' => $sonetGroupId,
             'FIELDS' => $fields,
         ];
-
-        if (!empty($this->baseParams))
-            $params = array_merge($params, $this->baseParams);
 
         try {
             $response = $this->api->request(sprintf($this->getMethod(), 'add'), $params);
