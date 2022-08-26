@@ -7,9 +7,14 @@ use Bitrix24Api\EntitiesServices\BaseEntity;
 use Bitrix24Api\EntitiesServices\Traits\GetTrait;
 use Bitrix24Api\Exceptions\ApiException;
 use Bitrix24Api\Exceptions\Entity\AlredyExists;
+use Bitrix24Api\Exceptions\Entity\NotFound;
 use Bitrix24Api\Exceptions\InvalidArgumentException;
 use Bitrix24Api\Models\Entity\EntityModel;
 use Illuminate\Support\Facades\Log;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 
 class Entity extends BaseEntity
 {
@@ -30,6 +35,7 @@ class Entity extends BaseEntity
         }
         $this->entityId = $entityTypeId;
     }
+
     /**
      * @throws \Exception
      */
@@ -50,22 +56,44 @@ class Entity extends BaseEntity
             } else {
                 return false;
             }
-        } catch (ApiException $e) {
-            if ($e->getTitle() === 'ERROR_ENTITY_ALREADY_EXISTS') {
-                throw new AlredyExists($e->getTitle(), 0, $e->getDescription());
+        } catch (ApiException $exception) {
+            if ($exception->getTitle() === 'ERROR_ENTITY_ALREADY_EXISTS') {
+                throw new AlredyExists($exception->getTitle(), 0, $exception->getDescription());
             } else {
-                throw new \Exception($e->getMessage());
+                throw new \Exception($exception->getMessage());
             }
         }
     }
 
-    public function get(): ?EntityModel
+    /**
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws NotFound
+     * @throws \Exception
+     */
+    public function get(): EntityModel
     {
         try {
             $response = $this->api->request(sprintf($this->getMethod(), 'get'), ['ENTITY' => $this->entityId]);
             return new EntityModel($response->getResponseData()->getResult()->getResultData());
-        }catch (ApiException $exception){
-            return null;
+        } catch (ApiException $exception) {
+            if ($exception->getMessage() == 'ERROR_ENTITY_NOT_FOUND') {
+                throw new NotFound($exception->getTitle(), 404, $exception->getDescription());
+            } else {
+                throw new \Exception($exception->getMessage());
+            }
+        }
+    }
+
+    public function delete(): bool
+    {
+        try {
+            $this->api->request(sprintf($this->getMethod(), 'delete'), ['ENTITY' => $this->entityId]);
+            return true;
+        } catch (ApiException $exception) {
+            throw new \Exception($exception->getMessage());
         }
     }
 }

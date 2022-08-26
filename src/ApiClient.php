@@ -33,6 +33,7 @@ use Bitrix24Api\EntitiesServices\Entity\Section;
 use Bitrix24Api\EntitiesServices\Lists\Element as ListsElement;
 use Bitrix24Api\EntitiesServices\Lists\Lists;
 use Bitrix24Api\EntitiesServices\Lists\ListsField;
+use Bitrix24Api\EntitiesServices\Placement;
 use Bitrix24Api\EntitiesServices\Profile;
 use Bitrix24Api\EntitiesServices\Sonet\Group;
 use Bitrix24Api\EntitiesServices\Task\CommentItem;
@@ -41,6 +42,7 @@ use Bitrix24Api\EntitiesServices\Task\Task;
 use Bitrix24Api\EntitiesServices\User;
 use Bitrix24Api\Exceptions\ApiException;
 use Bitrix24Api\Exceptions\ExpiredRefreshToken;
+use Bitrix24Api\Exceptions\InvalidArgumentException;
 use Bitrix24Api\Exceptions\ServerInternalError;
 use Exception;
 use Generator;
@@ -320,6 +322,11 @@ class ApiClient
         return new Profile($this);
     }
 
+    public function placement(): Placement
+    {
+        return new Placement($this);
+    }
+
     /*
      * CRM
      */
@@ -448,9 +455,12 @@ class ApiClient
         return new Item($this, $params);
     }
 
-    public function entityItemProperty(array $params = []): ItemProperty
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function entityItemProperty(string $entityId): ItemProperty
     {
-        return new ItemProperty($this, $params);
+        return new ItemProperty($this, $entityId);
     }
 
     public function entitySection(array $params = []): Section
@@ -488,6 +498,11 @@ class ApiClient
     public function taskItem(array $params = []): \Bitrix24Api\EntitiesServices\Task\Item
     {
         return new \Bitrix24Api\EntitiesServices\Task\Item($this, $params);
+    }
+
+    public function taskElapsedItem(): \Bitrix24Api\EntitiesServices\Task\ElapsedItem
+    {
+        return new \Bitrix24Api\EntitiesServices\Task\ElapsedItem($this);
     }
 
     public function taskCommentItem(array $params = []): CommentItem

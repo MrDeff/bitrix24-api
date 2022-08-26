@@ -16,4 +16,14 @@ class EntityModel extends AbstractModel implements HasIdInterface
     {
         return $this->ID;
     }
+
+    public function getName(): ?int
+    {
+        return $this->NAME;
+    }
+
+    public function getEntity(): ?int
+    {
+        return $this->ENTITY;
+    }
 }

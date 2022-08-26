@@ -57,4 +57,19 @@ class Task extends BaseEntity
             throw new \Exception($e->getMessage());
         }
     }
+
+    public function getAccess(int $id, array $users = [])
+    {
+        if (empty($users))
+            return [];
+        try {
+            $response = $this->api->request(sprintf($this->getMethod(), 'getaccess'), ['taskId' => $id, 'users' => $users]);
+            $result = $response->getResponseData()->getResult()->getResultData();
+            if (isset($result['allowedActions'])) {
+                return $result['allowedActions'];
+            }
+        } catch (ApiException $e) {
+
+        }
+    }
 }

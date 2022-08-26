@@ -15,10 +15,19 @@ class Element extends BaseEntity
     protected string $resultKey = '';
     protected string $listMethod = 'get';
 
-    public function get($id): ?AbstractModel
+    public function get(string $iblockTypeId, int $sonetGroupId = 0, $iblockCodeOrId, $id): ?ElementModel
     {
-        $params = $this->baseParams;
-        $params['ELEMENT_ID'] = $id;
+        $params = [
+            'IBLOCK_TYPE_ID' => $iblockTypeId,
+            'SOCNET_GROUP_ID' => $sonetGroupId,
+            'ELEMENT_ID' => $id,
+        ];
+
+        if (is_int($iblockCodeOrId)) {
+            $params['IBLOCK_ID'] = $iblockCodeOrId;
+        } else {
+            $params['IBLOCK_CODE'] = $iblockCodeOrId;
+        }
 
         $response = $this->api->request(sprintf($this->getMethod(), 'get'), $params);
 
