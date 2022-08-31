@@ -67,7 +67,7 @@ class Batch
                 }
 
                 $total = null;
-                if ($totalItems !== null && count($totalItems) > 0) {
+                if ($totalItems !== null && count($totalItems) > 0 && isset($totalItems[$singleQueryKey])) {
                     $total = $totalItems[$singleQueryKey];
                 }
 

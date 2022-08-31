@@ -32,7 +32,7 @@ class Element extends BaseEntity
         $response = $this->api->request(sprintf($this->getMethod(), 'get'), $params);
 
         $class = static::ITEM_CLASS;
-        $entity = new $class($response->getResponseData()->getResult()->getResultData());
+        $entity = new $class(current($response->getResponseData()->getResult()->getResultData()));
         return !empty($response) ? $entity : null;
     }
 
@@ -58,6 +58,39 @@ class Element extends BaseEntity
             $id = current($result);
             if ($id > 0) {
                 return $id;
+            } else {
+                return false;
+            }
+        } catch (ApiException $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    public function update(string $iblockTypeId, $iblockCodeOrId, $elementCodeOrId, array $fields, int $sonetGroupId = 0)
+    {
+        $params = [
+            'IBLOCK_TYPE_ID' => $iblockTypeId,
+            'FIELDS' => $fields,
+            'SOCNET_GROUP_ID' => $sonetGroupId
+        ];
+
+        if (is_int($iblockCodeOrId)) {
+            $params['IBLOCK_ID'] = $iblockCodeOrId;
+        } else {
+            $params['IBLOCK_CODE'] = $iblockCodeOrId;
+        }
+
+        if (is_int($elementCodeOrId)) {
+            $params['ELEMENT_ID'] = $elementCodeOrId;
+        } else {
+            $params['ELEMENT_CODE'] = $elementCodeOrId;
+        }
+
+        try {
+            $response = $this->api->request(sprintf($this->getMethod(), 'update'), $params);
+            $result = $response->getResponseData()->getResult()->getResultData();
+            if (current($result)) {
+                return current($result);
             } else {
                 return false;
             }

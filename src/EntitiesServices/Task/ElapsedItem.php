@@ -51,4 +51,36 @@ class ElapsedItem extends BaseEntity
         }
         return false;
     }
+
+    public function update(int $taskId, int $id, array $fields = [])
+    {
+        try {
+            $response = $this->api->request(sprintf($this->getMethod(), 'update'), [$taskId, $id, $fields]);
+            $result = $response->getResponseData()->getResult()->getResultData();
+            if (current($result)) {
+                return current($result);
+            } else {
+                return false;
+            }
+        } catch (ApiException $e) {
+
+        }
+        return false;
+    }
+
+    public function delete(int $taskId, int $id)
+    {
+        try {
+            $response = $this->api->request(sprintf($this->getMethod(), 'delete'), [$taskId, $id]);
+            $result = $response->getResponseData()->getResult()->getResultData();
+            if (current($result)) {
+                return current($result);
+            } else {
+                return false;
+            }
+        } catch (ApiException $e) {
+
+        }
+        return false;
+    }
 }

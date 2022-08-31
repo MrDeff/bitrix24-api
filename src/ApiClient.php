@@ -36,6 +36,7 @@ use Bitrix24Api\EntitiesServices\Lists\ListsField;
 use Bitrix24Api\EntitiesServices\Placement;
 use Bitrix24Api\EntitiesServices\Profile;
 use Bitrix24Api\EntitiesServices\Sonet\Group;
+use Bitrix24Api\EntitiesServices\Sonet\GroupUser;
 use Bitrix24Api\EntitiesServices\Task\CommentItem;
 use Bitrix24Api\EntitiesServices\Task\Stages;
 use Bitrix24Api\EntitiesServices\Task\Task;
@@ -522,6 +523,11 @@ class ApiClient
     public function sonetGroup(array $params = []): Group
     {
         return new Group($this, $params);
+    }
+
+    public function sonetGroupUser(): GroupUser
+    {
+        return new GroupUser($this);
     }
 
     /*
